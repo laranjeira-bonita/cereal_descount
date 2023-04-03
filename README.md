@@ -1,14 +1,22 @@
 # cereal_descount
 a route to calculate price with promotion
 
+
 how to use it:
 1, git clone git@github.com:laranjeira-bonita/cereal_descount.git
+
 2, cd cereal_descount
+
 3, bundle install
+
 4, rails db:create
+
 5, rails db:migrate
+
 6, rails db:seed
+
 7, rails s
+
 8, send the json to http://localhost:3000/v1/promotions/current_promotion
  json example:
     {
