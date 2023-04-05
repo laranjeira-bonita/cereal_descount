@@ -7,7 +7,7 @@ module Promotions
           promotion_service = promotion.name.split(/\s/).map{|word|word.capitalize}.join + 'Service'
           "Promotions::#{promotion_service}".constantize.get_price(params)
         else
-          params['lineItems'].pluck(:price).map{|n|n.to_f}.sum.round(2)
+          params['lineItems'].sum{|n|n[:price].to_f}.round(2)
         end
       end
     end

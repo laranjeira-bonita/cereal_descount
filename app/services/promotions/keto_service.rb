@@ -2,20 +2,36 @@ module Promotions
   class KetoService
     class << self
       def get_price(params)
-        not_keto_product_prices = params['lineItems'].select{|p|!p['collection'].eql?('KETO')}.pluck(:price).map{|n|n.to_f}
-        not_keto_count = not_keto_product_prices.count
-        descount = if not_keto_count.eql? 2
-          not_keto_product_prices.sum * 0.05
-        elsif not_keto_count.eql? 3
-          not_keto_product_prices.sum * 0.1
-        elsif not_keto_count.eql? 4
-          not_keto_product_prices.sum * 0.2
-        elsif not_keto_count >= 5
-          not_keto_product_prices.sum * 0.25
+        not_keto_products = params['lineItems'].select{|p|!p['collection'].eql?('KETO')}
+        descount = case not_keto_products.count
+          when 0..1
+            1
+          when 2
+            0.95
+          when 3
+            0.9
+          when 4
+            0.8
+          else
+            0.75
+          end
+        total_price = 0
+        line_items = params['lineItems'].map do |product|
+          discounted_price = product['collection'].eql?('KETO') ? product['price'].to_f : (product['price'].to_f * descount).round(2)
+          total_price += discounted_price
+          product.merge({ 'discountedPrice':  discounted_price})
         end
-        final_price = (params['lineItems'].pluck(:price).map{|n|n.to_f}.sum - descount).round(2)
-        # case params['lineItems'].count
-        # end
+        {
+          "cart": {
+            "total_price": total_price.round(2),
+            "reference": params["reference"],
+            "lineItems": line_items
+          }
+        }
+      end
+      private
+      def total_price(products)
+        products.sum{|p|p[:price].to_f}
       end
     end
   end
